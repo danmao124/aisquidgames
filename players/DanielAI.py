@@ -48,14 +48,15 @@ class DanielAI(BaseAI):
     def maximizeMove(self, state, depth):
         selfPosition = np.where(state.map == 1)
         selfPosition = (selfPosition[0][0], selfPosition[1][0])
+        availableMoves = state.get_neighbors(selfPosition, only_available=True)
 
-        if depth <= 0:
+        if depth <= 0 or len(availableMoves) == 0:
             return (None, self.moveHeuristic(state, selfPosition))
 
-        maxChild = state.clone()
+        maxChild = None
         maxUtility = float('-inf')
 
-        for possibleSelfMove in state.get_neighbors(selfPosition, only_available=True):
+        for possibleSelfMove in availableMoves:
             state.move(possibleSelfMove, 1)
 
             enemyPosition = np.where(state.map == 2)
@@ -83,16 +84,20 @@ class DanielAI(BaseAI):
                 state.setCellValue(possibleEnemyTrapLocation, oldValue)
             state.move(selfPosition, 1)
 
+        if maxChild is None:
+            print('debug me')
+
         return (maxChild, maxUtility)
 
     def minimizeMove(self, state, depth):
         selfPosition = np.where(state.map == 2)
         selfPosition = (selfPosition[0][0], selfPosition[1][0])
+        availableMoves = state.get_neighbors(selfPosition, only_available=True)
 
-        if depth <= 0:
+        if depth <= 0 or len(availableMoves) == 0:
             return (None, self.moveHeuristic(state, selfPosition))
 
-        minChild = state.clone()
+        minChild = None
         minUtility = float('inf')
 
         for possibleSelfMove in state.get_neighbors(selfPosition, only_available=True):
@@ -122,6 +127,9 @@ class DanielAI(BaseAI):
                 # Backtracking
                 state.setCellValue(possibleEnemyTrapLocation, oldValue)
             state.move(selfPosition, 2)
+
+        if minChild is None:
+            print('debug me')
 
         return (minChild, minUtility)
 
