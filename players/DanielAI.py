@@ -51,7 +51,7 @@ class DanielAI(BaseAI):
         availableMoves = state.get_neighbors(selfPosition, only_available=True)
 
         if depth <= 0 or len(availableMoves) == 0:
-            return (None, self.moveHeuristic(state, selfPosition))
+            return (None, self.moveHeuristic(state))
 
         maxChild = None
         maxUtility = float('-inf')
@@ -95,7 +95,7 @@ class DanielAI(BaseAI):
         availableMoves = state.get_neighbors(selfPosition, only_available=True)
 
         if depth <= 0 or len(availableMoves) == 0:
-            return (None, self.moveHeuristic(state, selfPosition))
+            return (None, self.moveHeuristic(state))
 
         minChild = None
         minUtility = float('inf')
@@ -133,5 +133,7 @@ class DanielAI(BaseAI):
 
         return (minChild, minUtility)
 
-    def moveHeuristic(self, state, selfPosition):
+    def moveHeuristic(self, state):
+        selfPosition = np.where(state.map == 1)
+        selfPosition = (selfPosition[0][0], selfPosition[1][0])
         return len(state.get_neighbors(selfPosition, only_available=True))
