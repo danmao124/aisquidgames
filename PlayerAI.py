@@ -4,41 +4,41 @@ import numpy as np
 from Grid import Grid
 
 # TO BE IMPLEMENTED
-# 
-class PlayerAI(BaseAI):
+#
+
+
+class DanielAI(BaseAI):
 
     def __init__(self) -> None:
         # You may choose to add attributes to your player - up to you!
         super().__init__()
-        
-    
-    def getMove(self, grid: Grid) -> tuple:
-        """ 
-        YOUR CODE GOES HERE
 
-        The function should return a tuple of (x,y) coordinates to which the player moves.
+    def getMove(self, grid):
+        """ Returns a random, valid move """
 
-        You may adjust the input variables as you wish but output has to be the coordinates.
-        
-        """
-        pass
+        # find all available moves
+        available_moves = grid.get_neighbors(self.pos, only_available=True)
 
-    def getTrap(self, grid : Grid) -> tuple:
-        """ 
-        YOUR CODE GOES HERE
+        # make random move
+        new_pos = random.choice(available_moves) if available_moves else None
 
-        The function should return a tuple of (x,y) coordinates to which the player *wants* 
-        to throw the trap. 
-        
-        You do not need to account for probabilities. We've implemented that for you.
+        self.setPosition(new_pos)
 
-        You may adjust the input variables as you wish but output has to be the coordinates.
-        
-        """
-        pass
+        return new_pos
+
+    def getTrap(self, grid: Grid):
+        """Get the *intended* trap move of the player"""
+
+        # find all available cells in the grid
+        available_cells = grid.getAvailableCells()
+
+        # find all available cells
+        trap = random.choice(available_cells) if available_cells else None
+
+        return trap
+
+    def setPosition(self, new_pos: tuple):
+        self.pos = new_pos
 
     def getPosition(self):
-        pass
-        
-
-    
+        return self.pos
