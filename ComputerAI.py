@@ -8,12 +8,19 @@ class ComputerAI(BaseAI):
     def __init__(self, initial_position = None) -> None:
         super().__init__()
         self.pos = initial_position
+        self.player_num = None
 
     def setPosition(self, new_pos: tuple):
         self.pos = new_pos
     
     def getPosition(self):
         return self.pos 
+
+    def getPlayerNum(self):
+        return self.player_num
+        
+    def setPlayerNum(self, num):
+        self.player_num = num
 
     def getMove(self, grid):
         """ Returns a random, valid move """
@@ -23,8 +30,6 @@ class ComputerAI(BaseAI):
 
         # make random move
         new_pos = random.choice(available_moves) if available_moves else None
-        
-        self.setPosition(new_pos)
 
         return new_pos
 
