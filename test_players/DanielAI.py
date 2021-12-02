@@ -6,7 +6,7 @@ from Utils import *
 # Daniel Mao
 # Basic MiniMax with Depth limited search
 
-LOOK_DOWN_DEPTH = 3
+LOOK_DOWN_DEPTH = 5
 
 
 class DanielAI(BaseAI):
@@ -60,30 +60,19 @@ class DanielAI(BaseAI):
         possibleEnemyTrapThrows = state.get_neighbors(
             selfPosition, only_available=False)
 
-        for possibleEnemyTrapThrow in possibleEnemyTrapThrows:
-            if state.getCellValue(possibleEnemyTrapThrow) == self.player_num or state.getCellValue(possibleEnemyTrapThrow) == self.enemy_num:
-                continue
+        for possibleSelfMove in availableMoves:
+            state.move(possibleSelfMove, self.player_num)
 
-            # update board because we need to get available player moves
-            oldValue = state.getCellValue(possibleEnemyTrapThrow)
-            state.setCellValue(possibleEnemyTrapThrow, -1)
+            # Call Min (enemy)
+            minimizeResults = self.minimizeMove(state, depth - 1)
 
-            availableMoves = state.get_neighbors(
-                selfPosition, only_available=True)
-            for possibleSelfMove in availableMoves:
-                state.move(possibleSelfMove, self.player_num)
+            # Update max
+            if minimizeResults[1] > maxUtility:
+                maxChild = state.clone()
+                maxUtility = minimizeResults[1]
 
-                # Call Min (enemy)
-                minimizeResults = self.minimizeMove(state, depth - 1)
-
-                # Update max
-                if minimizeResults[1] > maxUtility:
-                    maxChild = state.clone()
-                    maxUtility = minimizeResults[1]
-
-                # Backtracking
-                state.move(selfPosition, self.player_num)
-            state.setCellValue(possibleEnemyTrapThrow, oldValue)
+            # Backtracking
+            state.move(selfPosition, self.player_num)
 
         if maxChild is None:
             print('debug me')
