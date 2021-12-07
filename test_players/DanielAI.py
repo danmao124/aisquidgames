@@ -30,7 +30,8 @@ class DanielAI(BaseAI):
     def getMove(self, grid):
         """ Returns a random, valid move """
 
-        bestMove = self.maximizeMove(grid, LOOK_DOWN_DEPTH)[0]
+        bestMove = self.maximizeMove(
+            grid, LOOK_DOWN_DEPTH, float('-inf'), float('inf'))[0]
         return bestMove.find(self.player_num)
 
     def getTrap(self, grid: Grid):
@@ -47,7 +48,7 @@ class DanielAI(BaseAI):
 
     # The algorithm for figuring out the safest place to move. State is the
     # current board, and depth is the max search depth. Once it reaches 0, we stop.
-    def maximizeMove(self, state, depth):
+    def maximizeMove(self, state, depth, alpha, beta):
         selfPosition = state.find(self.player_num)
         availableMoves = state.get_neighbors(selfPosition, only_available=True)
 
@@ -57,14 +58,11 @@ class DanielAI(BaseAI):
         maxChild = None
         maxUtility = float('-inf')
 
-        possibleEnemyTrapThrows = state.get_neighbors(
-            selfPosition, only_available=False)
-
         for possibleSelfMove in availableMoves:
             state.move(possibleSelfMove, self.player_num)
 
             # Call Min (enemy)
-            minimizeResults = self.minimizeMove(state, depth - 1)
+            minimizeResults = self.minimizeMove(state, depth - 1, alpha, beta)
 
             # Update max
             if minimizeResults[1] > maxUtility:
@@ -74,12 +72,18 @@ class DanielAI(BaseAI):
             # Backtracking
             state.move(selfPosition, self.player_num)
 
+            # Alpha updates
+            if maxUtility >= beta:
+                break
+            if maxUtility > alpha:
+                alpha = maxUtility
+
         if maxChild is None:
             print('debug me')
 
         return (maxChild, maxUtility)
 
-    def minimizeMove(self, state, depth):
+    def minimizeMove(self, state, depth, alpha, beta):
         enemyPosition = state.find(self.player_num)
 
         if depth <= 0:
@@ -100,7 +104,7 @@ class DanielAI(BaseAI):
             state.setCellValue(possibleTrapThrow, -1)
 
             # Call Max (player)
-            maximizeResults = self.maximizeMove(state, depth - 1)
+            maximizeResults = self.maximizeMove(state, depth - 1, alpha, beta)
 
             # Update min
             if maximizeResults[1] < minUtility:
@@ -109,6 +113,12 @@ class DanielAI(BaseAI):
 
             # Backtracking
             state.setCellValue(possibleTrapThrow, oldValue)
+
+            # Beta updates
+            if minUtility <= alpha:
+                break
+            if minUtility < beta:
+                beta = minUtility
 
         if minChild is None:
             print('debug me')
