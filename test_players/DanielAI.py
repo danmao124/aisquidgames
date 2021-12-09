@@ -2,6 +2,8 @@ import random
 from BaseAI import BaseAI
 from Grid import Grid
 from Utils import *
+import numpy as np
+
 
 # Daniel Mao
 # Basic MiniMax with Depth limited search
@@ -35,19 +37,31 @@ class DanielAI(BaseAI):
         return bestMove.find(self.player_num)
 
     def getTrap(self, grid: Grid):
-        # find opponent
+        # find players
         opponent = grid.find(3 - self.player_num)
 
-        # find all available cells surrounding Opponent
-        available_cells = grid.get_neighbors(opponent, only_available=True)
+        # find all available cells in the grid
+        available_neighbors = grid.get_neighbors(opponent, only_available=True)
+
+        # edge case - if there are no available cell around opponent, then
+        # player constitutes last trap and will win. throwing randomly.
+        if not available_neighbors:
+            return random.choice(grid.getAvailableCells())
+
+        states = [grid.clone().trap(cell) for cell in available_neighbors]
+
+        # find trap that minimizes opponent's moves
+        is_scores = np.array([IS(state, 3 - self.player_num)
+                              for state in states])
 
         # throw to one of the available cells randomly
-        trap = random.choice(available_cells)
+        trap = available_neighbors[np.argmin(is_scores)]
 
         return trap
 
     # The algorithm for figuring out the safest place to move. State is the
     # current board, and depth is the max search depth. Once it reaches 0, we stop.
+
     def maximizeMove(self, state, depth, alpha, beta):
         selfPosition = state.find(self.player_num)
         availableMoves = state.get_neighbors(selfPosition, only_available=True)
@@ -127,4 +141,17 @@ class DanielAI(BaseAI):
 
     def moveHeuristic(self, state):
         selfPosition = state.find(self.player_num)
-        return len(state.get_neighbors(selfPosition, only_available=True))
+        opponentPosition = state.find(3 - self.player_num)
+        return len(state.get_neighbors(selfPosition, only_available=True)) - 2*len(state.get_neighbors(opponentPosition, only_available=True))
+
+
+def IS(grid: Grid, player_num):
+            # find all available moves by Player
+    player_moves = grid.get_neighbors(
+        grid.find(player_num), only_available=True)
+
+    # find all available moves by Opponent
+    opp_moves = grid.get_neighbors(
+        grid.find(3 - player_num), only_available=True)
+
+    return len(player_moves) - len(opp_moves)
