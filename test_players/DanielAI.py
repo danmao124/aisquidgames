@@ -31,7 +31,6 @@ class DanielAI(BaseAI):
 
     def getMove(self, grid):
         """ Returns a random, valid move """
-
         bestMove = self.maximizeMove(
             grid, LOOK_DOWN_DEPTH, float('-inf'), float('inf'))[0]
         return bestMove.find(self.player_num)
@@ -75,8 +74,8 @@ class DanielAI(BaseAI):
         for possibleSelfMove in availableMoves:
             state.move(possibleSelfMove, self.player_num)
 
-            # Call Min (enemy)
-            minimizeResults = self.minimizeMove(state, depth - 1, alpha, beta)
+            minimizeResults = self.minimizeMove(
+                state, depth - 1, alpha, beta)
 
             # Update max
             if minimizeResults[1] > maxUtility:
@@ -113,20 +112,30 @@ class DanielAI(BaseAI):
             if state.getCellValue(possibleTrapThrow) == self.player_num or state.getCellValue(possibleTrapThrow) == self.enemy_num:
                 continue
 
+            trapProbs = self.getThrowLikelihoods(
+                state, possibleTrapThrow)
+            maximizeResults = 0
+
             # update board
             oldValue = state.getCellValue(possibleTrapThrow)
             state.setCellValue(possibleTrapThrow, -1)
 
             # Call Max (player)
-            maximizeResults = self.maximizeMove(state, depth - 1, alpha, beta)
-
-            # Update min
-            if maximizeResults[1] < minUtility:
-                minChild = state.clone()
-                minUtility = maximizeResults[1]
+            maximizeResults = self.maximizeMove(
+                state, depth - 1, alpha, beta)[1] * trapProbs[0]
 
             # Backtracking
             state.setCellValue(possibleTrapThrow, oldValue)
+
+            # Call Max (player)
+            if trapProbs[1] > 0:
+                maximizeResults = maximizeResults + self.maximizeMove(
+                    state, depth - 1, alpha, beta)[1] * trapProbs[1]
+
+            # Update min
+            if maximizeResults < minUtility:
+                minChild = state.clone()
+                minUtility = maximizeResults
 
             # Beta updates
             if minUtility <= alpha:
@@ -142,7 +151,44 @@ class DanielAI(BaseAI):
     def moveHeuristic(self, state):
         selfPosition = state.find(self.player_num)
         opponentPosition = state.find(3 - self.player_num)
-        return len(state.get_neighbors(selfPosition, only_available=True)) - 2*len(state.get_neighbors(opponentPosition, only_available=True))
+        return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
+
+    def getThrowLikelihoods(self, grid: Grid, intended_position: tuple) -> tuple:
+        '''
+        Description
+        ----------
+        Function returns the probability that the trap lands in the intended position, or lands in a spot causing no change.
+
+        Parameters
+        ----------
+        grid : current game Grid
+
+        intended position : the (x,y) coordinates to which the player intends to throw the trap to.
+
+        Returns
+        -------
+        - probs: (probability of landing in intended position, probability of causing no change) : list
+        '''
+
+        # find neighboring cells
+        originalNeighbors = grid.get_neighbors(intended_position)
+
+        neighbors = [
+            neighbor for neighbor in originalNeighbors if grid.getCellValue(neighbor) <= 0]
+        n = len(neighbors)
+
+        probs = np.ones(2)
+
+        # compute probability of success, p
+        selfPosition = grid.find(self.player_num)
+        p = 1 - 0.05 * \
+            (manhattan_distance(selfPosition, intended_position) - 1)
+
+        probs[0] = p
+        probs[1] = len([
+            neighbor for neighbor in originalNeighbors if grid.getCellValue(neighbor) != 0]) * ((1 - p) / n)
+
+        return probs
 
 
 def IS(grid: Grid, player_num):

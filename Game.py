@@ -5,6 +5,7 @@ from Displayer import Displayer
 from PlayerAI import PlayerAI
 from test_players.MediumAI import MediumAI
 from test_players.DanielAI import DanielAI
+from test_players.DevicaAI import DevicaAI
 from Utils import *
 import time
 
@@ -234,18 +235,22 @@ class Game():
 
 
 def main():
+    wins = 0
+    for i in range(50):
 
-    playerAI = DanielAI()  # change this to PlayerAI() to test your player!
-    computerAI = MediumAI()  # change this to a more sophisticated player you've coded
-    displayer = Displayer()
-    game = Game(playerAI=playerAI, computerAI=computerAI,
-                N=7, displayer=displayer)
+        playerAI = DanielAI()  # change this to PlayerAI() to test your player!
+        computerAI = MediumAI()  # change this to a more sophisticated player you've coded
+        displayer = Displayer()
+        game = Game(playerAI=playerAI, computerAI=computerAI,
+                    N=7, displayer=displayer)
 
-    result = game.play()
-    if result == 1:
-        print("Player 1 wins!")
-    elif result == 2:
-        print("Player 1 loses!")
+        result = game.play()
+        if result == 1:
+            print("Player 1 wins!")
+            wins = wins + 1
+        elif result == 2:
+            print("Player 1 loses!")
+    print(wins)
 
 
 if __name__ == "__main__":
