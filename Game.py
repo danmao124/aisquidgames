@@ -254,7 +254,7 @@ class Game():
 
 def main():
     wins = 0
-    for i in range(20):
+    for i in range(50):
 
         playerAI = DanielAI()  # change this to PlayerAI() to test your player!
         computerAI = MediumAI()  # change this to a more sophisticated player you've coded
