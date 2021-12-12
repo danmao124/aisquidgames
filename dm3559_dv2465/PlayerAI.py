@@ -131,10 +131,14 @@ class PlayerAI(BaseAI):
         return (minChild, minUtility)
 
     def moveHeuristic(self, state):
-        # 48/50 vs medium bot
         selfPosition = state.find(self.player_num)
         opponentPosition = state.find(3 - self.player_num)
-        return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
+        P = len(state.get_neighbors(selfPosition, only_available=True))
+        O = len(state.get_neighbors(opponentPosition, only_available=True))
+        if (2*P - O) >= (P - 2*O):
+            return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
+        else:
+            return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
 
     def maximizeTrap(self, state, depth, alpha, beta):
         """

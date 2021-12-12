@@ -245,7 +245,7 @@ class Game():
             if self.is_over(turn):
                 self.over = True
 
-            # self.updateAlarm(time.process_time())  # ADD THIS BACK LATER
+            self.updateAlarm(time.process_time())  # ADD THIS BACK LATER
             turn = 3 - turn
             self.displayer.display(self.grid)
 
@@ -254,10 +254,10 @@ class Game():
 
 def main():
     wins = 0
-    for i in range(50):
+    for i in range(3):
 
-        playerAI = DanielAI()  # change this to PlayerAI() to test your player!
-        computerAI = MediumAI()  # change this to a more sophisticated player you've coded
+        playerAI = PlayerAI()  # change this to PlayerAI() to test your player!
+        computerAI = VillainAI()  # change this to a more sophisticated player you've coded
         displayer = Displayer()
         game = Game(playerAI=playerAI, computerAI=computerAI,
                     N=7, displayer=displayer)
