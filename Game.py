@@ -6,6 +6,8 @@ from PlayerAI import PlayerAI
 from test_players.MediumAI import MediumAI
 from test_players.DanielAI import DanielAI
 from test_players.DevicaAI import DevicaAI
+from test_players.VillainAI import VillainAI
+
 from Utils import *
 import time
 
@@ -55,22 +57,38 @@ class Game():
         """Check if game is over, i.e., Player or Opponent has no moves to make"""
         # check if Player has won
         # find available neighbors of player 1
-        opponent_neighbors = self.grid.get_neighbors(
-            self.computerAI.getPosition(), only_available=True)
-        # if none - win
-        if len(opponent_neighbors) == 0:
-            self.over = True
-            return 1
+        if turn == 2:
+            opponent_neighbors = self.grid.get_neighbors(
+                self.computerAI.getPosition(), only_available=True)
+            # if none - win
+            if len(opponent_neighbors) == 0:
+                self.over = True
+                return 1
 
-        # check if Opponent has won
-        player_neighbors = self.grid.get_neighbors(
-            self.playerAI.getPosition(), only_available=True)
+            # check if Opponent has won
+            player_neighbors = self.grid.get_neighbors(
+                self.playerAI.getPosition(), only_available=True)
 
-        if len(player_neighbors) == 0:
-            self.over = True
-            return 2
+            if len(player_neighbors) == 0:
+                self.over = True
+                return 2
+        else:
+            # check if Opponent has won
+            player_neighbors = self.grid.get_neighbors(
+                self.playerAI.getPosition(), only_available=True)
 
-        elif self.over:
+            if len(player_neighbors) == 0:
+                self.over = True
+                return 2
+
+            opponent_neighbors = self.grid.get_neighbors(
+                self.computerAI.getPosition(), only_available=True)
+            # if none - win
+            if len(opponent_neighbors) == 0:
+                self.over = True
+                return 1
+
+        if self.over:
             return turn
 
         else:
@@ -227,7 +245,7 @@ class Game():
             if self.is_over(turn):
                 self.over = True
 
-            # self.updateAlarm(time.process_time()) # ADD THIS BACK LATER
+            # self.updateAlarm(time.process_time())  # ADD THIS BACK LATER
             turn = 3 - turn
             self.displayer.display(self.grid)
 
@@ -236,7 +254,7 @@ class Game():
 
 def main():
     wins = 0
-    for i in range(50):
+    for i in range(20):
 
         playerAI = DanielAI()  # change this to PlayerAI() to test your player!
         computerAI = MediumAI()  # change this to a more sophisticated player you've coded

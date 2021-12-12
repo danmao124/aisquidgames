@@ -11,7 +11,7 @@ import numpy as np
 LOOK_DOWN_DEPTH = 5
 
 
-class DanielAI(BaseAI):
+class VillainAI(BaseAI):
 
     def __init__(self, initial_position=None) -> None:
         super().__init__()
@@ -132,44 +132,14 @@ class DanielAI(BaseAI):
 
     def moveHeuristic(self, state):
         # 48/50 vs medium bot
-        selfPosition = state.find(self.player_num)
-        opponentPosition = state.find(3 - self.player_num)
-        return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
+        # selfPosition = state.find(self.player_num)
+        # opponentPosition = state.find(3 - self.player_num)
+        # return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
 
         # 41/50 vs medium bot
-        # selfPosition = state.find(self.player_num)
-        # opponentPosition = state.find(3 - self.player_num)
-        # return len(state.get_neighbors(selfPosition, only_available=True)) - 2*len(state.get_neighbors(opponentPosition, only_available=True))
-
-        # 42/50 vs medium bot
-        # selfPosition = state.find(self.player_num)
-        # opponentPosition = state.find(3 - self.player_num)
-        # P = len(state.get_neighbors(selfPosition, only_available=True))
-        # O = len(state.get_neighbors(opponentPosition, only_available=True))
-        # if (2*P - O) >= (P - 2*O):
-        #     return P - 2*O
-        # else:
-        #     return P - O
-
-        # 46/50 vs medium bot
-        # selfPosition = state.find(self.player_num)
-        # opponentPosition = state.find(3 - self.player_num)
-        # P = len(state.get_neighbors(selfPosition, only_available=True))
-        # O = len(state.get_neighbors(opponentPosition, only_available=True))
-        # if (2*P - O) >= (P - 2*O):
-        #     return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
-        # else:
-        #     return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
-
-        # 44/50 vs medium bot
-        # selfPosition = state.find(self.player_num)
-        # opponentPosition = state.find(3 - self.player_num)
-        # P = len(state.get_neighbors(selfPosition, only_available=True))
-        # O = len(state.get_neighbors(opponentPosition, only_available=True))
-        # if (2*P - O) >= (P - 2*O):
-        #     return len(state.get_neighbors(selfPosition, only_available=True)) - len(state.get_neighbors(opponentPosition, only_available=True))**2
-        # else:
-        #     return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))
+        selfPosition = state.find(self.player_num)
+        opponentPosition = state.find(3 - self.player_num)
+        return len(state.get_neighbors(selfPosition, only_available=True)) - 2*len(state.get_neighbors(opponentPosition, only_available=True))
 
     def maximizeTrap(self, state, depth, alpha, beta):
         """
@@ -279,6 +249,29 @@ class DanielAI(BaseAI):
         return (minChild, minUtility)
 
     def trapHeuristic(self, state):
+        # 36/50 vs medium bot
+        enemyPosition = state.find(self.enemy_num)
+        return -1 * len(state.get_neighbors(enemyPosition, only_available=True))
+
+        # enemyPosition = state.find(self.enemy_num)
+        # if len(state.get_neighbors(enemyPosition, only_available=True)) < 3:
+        #     grid = state.clone()
+
+        #     queue = []  # Initialize a queue
+        #     enemyFreedomArea = 0
+
+        #     queue.append(enemyPosition)
+
+        #     while queue:
+        #         s = queue.pop(0)
+
+        #         for neighbour in grid.get_neighbors(s, only_available=True):
+        #             grid.setCellValue(neighbour, -1)
+        #             enemyFreedomArea = enemyFreedomArea + 1
+        #             queue.append(neighbour)
+        #     return -1 * enemyFreedomArea
+        # else:
+        #     return -1 * len(state.get_neighbors(enemyPosition, only_available=True))
 
         grid = state.clone()
         enemyPosition = state.find(self.enemy_num)
@@ -332,3 +325,15 @@ class DanielAI(BaseAI):
             neighbor for neighbor in originalNeighbors if grid.getCellValue(neighbor) != 0]) * ((1 - p) / n)
 
         return probs
+
+
+def IS(grid: Grid, player_num):
+            # find all available moves by Player
+    player_moves = grid.get_neighbors(
+        grid.find(player_num), only_available=True)
+
+    # find all available moves by Opponent
+    opp_moves = grid.get_neighbors(
+        grid.find(3 - player_num), only_available=True)
+
+    return len(player_moves) - len(opp_moves)

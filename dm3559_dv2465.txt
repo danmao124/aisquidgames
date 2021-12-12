@@ -1,0 +1,13 @@
+Daniel Mao (dm3559)
+Coded up move minimax
+Added expectiminimax to move minimax
+Added in alpha beta pruning to move minimax
+Came up with interesting throw + move heuristics
+Did lots of testing
+Coded up VillainAI - the pretend class mate AI
+
+Devica Verma (dv2465)
+Coded up throw minimax
+Added expectiminimax to throw minimax
+Added in alpha beta pruning to throw minimax
+Came up with interesting throw + move heuristics
