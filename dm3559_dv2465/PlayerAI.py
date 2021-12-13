@@ -5,7 +5,7 @@ from Utils import *
 import numpy as np
 
 
-# Daniel Mao
+# Daniel Mao, Devica Verma
 # Basic MiniMax with Depth limited search
 
 LOOK_DOWN_DEPTH = 5
@@ -48,17 +48,17 @@ class PlayerAI(BaseAI):
         while queue:
             s = queue.pop(0)
 
-            for neighbour in grid.get_neighbors(s, only_available=True):
-                grid.setCellValue(neighbour, -1)
+            for neighbour in state.get_neighbors(s, only_available=True):
+                state.setCellValue(neighbour, -1)
                 enemyFreedomArea = enemyFreedomArea + 1
                 queue.append(neighbour)
 
         if self.isNeighbor(playerPosition, enemyPosition) and enemyFreedomArea == 2:
-            for throw in state.get_neighbors(state.find(self.player_num)):
-                if state.getCellValue(throw) == -1:
+            for throw in grid.get_neighbors(grid.find(self.player_num)):
+                if grid.getCellValue(throw) == -1:
                     return throw
-            for throw in state.get_neighbors(state.find(self.enemy_num)):
-                if state.getCellValue(throw) == -1:
+            for throw in grid.get_neighbors(grid.find(self.enemy_num)):
+                if grid.getCellValue(throw) == -1:
                     return throw
 
         bestTrap = self.maximizeTrap(
@@ -80,6 +80,10 @@ class PlayerAI(BaseAI):
 
         for possibleSelfMove in availableMoves:
             state.move(possibleSelfMove, self.player_num)
+
+            opponentPosition = state.find(3 - self.player_num)
+            if len(state.get_neighbors(opponentPosition, only_available=True)) == 1:
+                return (state.clone(), 999)
 
             minimizeResults = self.minimizeMove(
                 state, depth - 1, alpha, beta)
@@ -160,7 +164,8 @@ class PlayerAI(BaseAI):
         opponentPosition = state.find(3 - self.player_num)
         P = len(state.get_neighbors(selfPosition, only_available=True))
         O = len(state.get_neighbors(opponentPosition, only_available=True))
-        if (2*P - O) >= (P - 2*O):
+
+        if O >= P:
             return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
         else:
             return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
@@ -298,7 +303,7 @@ class PlayerAI(BaseAI):
         return -enemyFreedomArea
 
     def isNeighbor(self, pos1, pos2):
-        if np.abs(pos1[0] - pos2[0]) + np.abs(pos1[1] - pos2[1]):
+        if np.abs(pos1[0] - pos2[0]) + np.abs(pos1[1] - pos2[1]) == 1:
             return True
         if np.abs(pos1[0] - pos2[0]) == 1 and np.abs(pos1[1] - pos2[1]) == 1:
             return True

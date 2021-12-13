@@ -170,14 +170,14 @@ class DanielAI(BaseAI):
         #     return P - O
 
         # 36/50 vs medium bot
-        selfPosition = state.find(self.player_num)
-        opponentPosition = state.find(3 - self.player_num)
-        P = len(state.get_neighbors(selfPosition, only_available=True))
-        O = len(state.get_neighbors(opponentPosition, only_available=True))
-        if (2*P - O) >= (P - 2*O):
-            return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
-        else:
-            return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
+        # selfPosition = state.find(self.player_num)
+        # opponentPosition = state.find(3 - self.player_num)
+        # P = len(state.get_neighbors(selfPosition, only_available=True))
+        # O = len(state.get_neighbors(opponentPosition, only_available=True))
+        # if (2*P - O) >= (P - 2*O):
+        #     return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
+        # else:
+        #     return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
 
         # 31/50 vs medium bot
         # selfPosition = state.find(self.player_num)
@@ -188,6 +188,18 @@ class DanielAI(BaseAI):
         #     return len(state.get_neighbors(selfPosition, only_available=True)) - len(state.get_neighbors(opponentPosition, only_available=True))**2
         # else:
         #     return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))
+
+        # 30/50 vs medium bot
+        selfPosition = state.find(self.player_num)
+        opponentPosition = state.find(3 - self.player_num)
+        selfPosition = state.find(self.player_num)
+        opponentPosition = state.find(3 - self.player_num)
+        P = len(state.get_neighbors(selfPosition, only_available=True))
+        O = len(state.get_neighbors(opponentPosition, only_available=True))
+        if O >= P:
+            return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
+        else:
+            return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
 
     def getThrowLikelihoods(self, grid: Grid, intended_position: tuple) -> tuple:
         '''
