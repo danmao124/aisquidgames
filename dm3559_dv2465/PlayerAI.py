@@ -31,6 +31,19 @@ class PlayerAI(BaseAI):
 
     def getMove(self, grid):
         """ Returns a random, valid move """
+        state = grid.clone()
+        selfPosition = state.find(self.player_num)
+        availableMoves = state.get_neighbors(selfPosition, only_available=True)
+
+        for possibleSelfMove in availableMoves:
+            state.move(possibleSelfMove, self.player_num)
+
+            opponentPosition = state.find(3 - self.player_num)
+            if len(state.get_neighbors(opponentPosition, only_available=True)) == 1:
+                return possibleSelfMove
+
+            state.move(selfPosition, self.player_num)
+
         bestMove = self.maximizeMove(
             grid, LOOK_DOWN_DEPTH, float('-inf'), float('inf'))[0]
         return bestMove.find(self.player_num)
@@ -80,10 +93,6 @@ class PlayerAI(BaseAI):
 
         for possibleSelfMove in availableMoves:
             state.move(possibleSelfMove, self.player_num)
-
-            opponentPosition = state.find(3 - self.player_num)
-            if len(state.get_neighbors(opponentPosition, only_available=True)) == 1:
-                return (state.clone(), 999)
 
             minimizeResults = self.minimizeMove(
                 state, depth - 1, alpha, beta)
