@@ -177,7 +177,7 @@ class PlayerAI(BaseAI):
         if O >= P:
             return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
         else:
-            return len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
+            return 2*len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
 
     def maximizeTrap(self, state, depth, alpha, beta):
         """
