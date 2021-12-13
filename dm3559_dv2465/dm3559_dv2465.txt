@@ -11,3 +11,4 @@ Coded up throw minimax
 Added expectiminimax to throw minimax
 Added in alpha beta pruning to throw minimax
 Came up with interesting throw + move heuristics
+Did lots of testing
