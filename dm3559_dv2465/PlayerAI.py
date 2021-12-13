@@ -39,7 +39,7 @@ class PlayerAI(BaseAI):
             state.move(possibleSelfMove, self.player_num)
 
             opponentPosition = state.find(3 - self.player_num)
-            if len(state.get_neighbors(opponentPosition, only_available=True)) == 1:
+            if len(state.get_neighbors(opponentPosition, only_available=True)) <= 1:
                 return possibleSelfMove
 
             state.move(selfPosition, self.player_num)
