@@ -203,6 +203,12 @@ class PlayerAI(BaseAI):
         if maxChild is None:
             print('maximizeTrap: debug me')
 
+        if maxUtility == -999:
+            print('edge case detected')
+            for throw in state.get_neighbors(state.find(self.player_num)):
+                if state.getCellValue(throw) == -1:
+                    return (maxChild, maxUtility, throw)
+
         return (maxChild, maxUtility, bestThrow)
 
     def minimizeTrap(self, state, depth, alpha, beta):
@@ -251,6 +257,8 @@ class PlayerAI(BaseAI):
 
         grid = state.clone()
         enemyPosition = state.find(self.enemy_num)
+        playerPosition = state.find(self.player_num)
+
         queue = []  # Initialize a queue
         enemyFreedomArea = 0
 
@@ -263,6 +271,10 @@ class PlayerAI(BaseAI):
                 grid.setCellValue(neighbour, -1)
                 enemyFreedomArea = enemyFreedomArea + 1
                 queue.append(neighbour)
+
+        if manhattan_distance(playerPosition, enemyPosition) == 1 and enemyFreedomArea == 2:
+            return -999
+
         return -enemyFreedomArea
 
     def getThrowLikelihoods(self, grid: Grid, intended_position: tuple) -> tuple:
