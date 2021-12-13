@@ -36,6 +36,31 @@ class PlayerAI(BaseAI):
         return bestMove.find(self.player_num)
 
     def getTrap(self, grid: Grid):
+        state = grid.clone()
+        enemyPosition = state.find(self.enemy_num)
+        playerPosition = state.find(self.player_num)
+
+        queue = []  # Initialize a queue
+        enemyFreedomArea = 0
+
+        queue.append(enemyPosition)
+
+        while queue:
+            s = queue.pop(0)
+
+            for neighbour in grid.get_neighbors(s, only_available=True):
+                grid.setCellValue(neighbour, -1)
+                enemyFreedomArea = enemyFreedomArea + 1
+                queue.append(neighbour)
+
+        if self.isNeighbor(playerPosition, enemyPosition) and enemyFreedomArea == 2:
+            for throw in state.get_neighbors(state.find(self.player_num)):
+                if state.getCellValue(throw) == -1:
+                    return throw
+            for throw in state.get_neighbors(state.find(self.enemy_num)):
+                if state.getCellValue(throw) == -1:
+                    return throw
+
         bestTrap = self.maximizeTrap(
             grid, LOOK_DOWN_DEPTH, float('-inf'), float('inf'))[2]
         return bestTrap
@@ -254,10 +279,8 @@ class PlayerAI(BaseAI):
         return (minChild, minUtility)
 
     def trapHeuristic(self, state):
-
         grid = state.clone()
         enemyPosition = state.find(self.enemy_num)
-        playerPosition = state.find(self.player_num)
 
         queue = []  # Initialize a queue
         enemyFreedomArea = 0
@@ -272,10 +295,14 @@ class PlayerAI(BaseAI):
                 enemyFreedomArea = enemyFreedomArea + 1
                 queue.append(neighbour)
 
-        if manhattan_distance(playerPosition, enemyPosition) == 1 and enemyFreedomArea == 2:
-            return -999
-
         return -enemyFreedomArea
+
+    def isNeighbor(self, pos1, pos2):
+        if np.abs(pos1[0] - pos2[0]) + np.abs(pos1[1] - pos2[1]):
+            return True
+        if np.abs(pos1[0] - pos2[0]) == 1 and np.abs(pos1[1] - pos2[1]) == 1:
+            return True
+        return False
 
     def getThrowLikelihoods(self, grid: Grid, intended_position: tuple) -> tuple:
         '''
