@@ -18,6 +18,7 @@ class PlayerAI(BaseAI):
         self.pos = initial_position
         self.player_num = None
         self.enemy_num = None
+        self.numMoves = 0
 
     def setPosition(self, new_pos: tuple):
         self.pos = new_pos
@@ -31,6 +32,7 @@ class PlayerAI(BaseAI):
 
     def getMove(self, grid):
         """ Returns a random, valid move """
+        self.numMoves = self.numMoves + 1
         state = grid.clone()
         selfPosition = state.find(self.player_num)
         availableMoves = state.get_neighbors(selfPosition, only_available=True)
@@ -171,13 +173,7 @@ class PlayerAI(BaseAI):
     def moveHeuristic(self, state):
         selfPosition = state.find(self.player_num)
         opponentPosition = state.find(3 - self.player_num)
-        P = len(state.get_neighbors(selfPosition, only_available=True))
-        O = len(state.get_neighbors(opponentPosition, only_available=True))
-
-        if O >= P:
-            return len(state.get_neighbors(selfPosition, only_available=True))**2 - 2*len(state.get_neighbors(opponentPosition, only_available=True))**2
-        else:
-            return 2*len(state.get_neighbors(selfPosition, only_available=True))**2 - len(state.get_neighbors(opponentPosition, only_available=True))**2
+        return len(state.get_neighbors(selfPosition, only_available=True)) - 2*len(state.get_neighbors(opponentPosition, only_available=True))
 
     def maximizeTrap(self, state, depth, alpha, beta):
         """
@@ -295,6 +291,7 @@ class PlayerAI(BaseAI):
     def trapHeuristic(self, state):
         grid = state.clone()
         enemyPosition = state.find(self.enemy_num)
+        playerPosition = state.find(self.player_num)
 
         queue = []  # Initialize a queue
         enemyFreedomArea = 0
@@ -303,13 +300,17 @@ class PlayerAI(BaseAI):
 
         while queue:
             s = queue.pop(0)
+            enemyFreedomArea = enemyFreedomArea + 1
 
             for neighbour in grid.get_neighbors(s, only_available=True):
-                grid.setCellValue(neighbour, -1)
-                enemyFreedomArea = enemyFreedomArea + 1
+                grid.setCellValue(neighbour, -1)  
                 queue.append(neighbour)
 
-        return -enemyFreedomArea
+        if self.numMoves > 10:
+            if len(state.get_neighbors(playerPosition, only_available=True)) <= 1 and len(state.get_neighbors(enemyPosition, only_available=True)) > 0:
+                return  -enemyFreedomArea
+
+        return 50-enemyFreedomArea
 
     def isNeighbor(self, pos1, pos2):
         if np.abs(pos1[0] - pos2[0]) + np.abs(pos1[1] - pos2[1]) == 1:
