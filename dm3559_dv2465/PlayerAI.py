@@ -8,9 +8,6 @@ import numpy as np
 # Daniel Mao, Devica Verma
 # Basic MiniMax with Depth limited search
 
-LOOK_DOWN_DEPTH = 5
-
-
 class PlayerAI(BaseAI):
 
     def __init__(self, initial_position=None) -> None:
@@ -19,6 +16,7 @@ class PlayerAI(BaseAI):
         self.player_num = None
         self.enemy_num = None
         self.numMoves = 0
+        self.lookDownDepth = 4
 
     def setPosition(self, new_pos: tuple):
         self.pos = new_pos
@@ -33,6 +31,13 @@ class PlayerAI(BaseAI):
     def getMove(self, grid):
         """ Returns a random, valid move """
         self.numMoves = self.numMoves + 1
+        if self.numMoves == 6:
+            self.lookDownDepth = self.lookDownDepth + 1
+        if self.numMoves == 12:
+            self.lookDownDepth = self.lookDownDepth + 1
+        if self.numMoves == 16:
+            self.lookDownDepth = self.lookDownDepth + 1
+
         state = grid.clone()
         selfPosition = state.find(self.player_num)
         availableMoves = state.get_neighbors(selfPosition, only_available=True)
@@ -47,7 +52,7 @@ class PlayerAI(BaseAI):
             state.move(selfPosition, self.player_num)
 
         bestMove = self.maximizeMove(
-            grid, LOOK_DOWN_DEPTH, float('-inf'), float('inf'))[0]
+            grid, self.lookDownDepth, float('-inf'), float('inf'))[0]
         return bestMove.find(self.player_num)
 
     def getTrap(self, grid: Grid):
@@ -77,7 +82,7 @@ class PlayerAI(BaseAI):
                     return throw
 
         bestTrap = self.maximizeTrap(
-            grid, LOOK_DOWN_DEPTH, float('-inf'), float('inf'))[2]
+            grid, self.lookDownDepth, float('-inf'), float('inf'))[2]
         return bestTrap
 
     # The algorithm for figuring out the safest place to move. State is the
@@ -291,22 +296,19 @@ class PlayerAI(BaseAI):
     def trapHeuristic(self, state):
         grid = state.clone()
         enemyPosition = state.find(self.enemy_num)
-        playerPosition = state.find(self.player_num)
 
-        queue = []  # Initialize a queue
-        enemyFreedomArea = 0
+        bb = grid.get_neighbors(enemyPosition, only_available=True)
+        enemyFreedomArea = len(bb)
 
-        queue.append(enemyPosition)
-
-        while queue:
-            s = queue.pop(0)
-            enemyFreedomArea = enemyFreedomArea + 1
-
-            for neighbour in grid.get_neighbors(s, only_available=True):
-                grid.setCellValue(neighbour, -1)  
-                queue.append(neighbour)
-
+        for neighbour in bb:
+            zz = grid.get_neighbors(neighbour, only_available=True)
+            enemyFreedomArea = len(zz) + enemyFreedomArea
+            for pp in zz:
+                grid.setCellValue(pp, -1)
+            grid.setCellValue(neighbour, -1)  
+            
         if self.numMoves > 10:
+            playerPosition = state.find(self.player_num)
             if len(state.get_neighbors(playerPosition, only_available=True)) <= 1 and len(state.get_neighbors(enemyPosition, only_available=True)) > 0:
                 return  -enemyFreedomArea
 
