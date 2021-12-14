@@ -256,8 +256,8 @@ def main():
     wins = 0
     for i in range(5):
 
-        playerAI = PlayerAI()  # change this to PlayerAI() to test your player!
-        computerAI = DanielAI()  # change this to a more sophisticated player you've coded
+        playerAI = MediumAI()  # change this to PlayerAI() to test your player!
+        computerAI = PlayerAI()  # change this to a more sophisticated player you've coded
         displayer = Displayer()
         game = Game(playerAI=playerAI, computerAI=computerAI,
                     N=7, displayer=displayer)

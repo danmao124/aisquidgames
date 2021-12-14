@@ -121,9 +121,6 @@ class PlayerAI(BaseAI):
             if maxUtility > alpha:
                 alpha = maxUtility
 
-        if maxChild is None:
-            print('debug me')
-
         return (maxChild, maxUtility)
 
     def minimizeMove(self, state, depth, alpha, beta):
@@ -172,9 +169,6 @@ class PlayerAI(BaseAI):
                 break
             if minUtility < beta:
                 beta = minUtility
-
-        if minChild is None:
-            print('debug me')
 
         return (minChild, minUtility)
 
@@ -311,9 +305,6 @@ class PlayerAI(BaseAI):
             if maxUtility > alpha:
                 alpha = maxUtility
 
-        if maxChild is None:
-            print('maximizeTrap: debug me')
-
         return (maxChild, maxUtility)
 
     def minimizeTrap(self, state, depth, alpha, beta):
@@ -353,9 +344,6 @@ class PlayerAI(BaseAI):
             if minUtility < beta:
                 beta = minUtility
 
-        if minChild is None:
-            print('minimizeTrap: debug me')
-
         return (minChild, minUtility)
 
     def get_player_moves(self, state):
@@ -371,8 +359,20 @@ class PlayerAI(BaseAI):
         Utility func for the trap search problem.
         """
         P = self.get_player_moves(state)
-        O = self.get_enemy_moves(state)
-        return P - 2*O
+        enemyPosition = state.find(3 - self.player_num)
+
+        grid = state.clone()
+        bb = grid.get_neighbors(enemyPosition, only_available=True)
+        O = len(bb)
+
+        for neighbour in bb:
+            zz = grid.get_neighbors(neighbour, only_available=True)
+            O = len(zz) + O
+            for pp in zz:
+                grid.setCellValue(pp, -1)
+            grid.setCellValue(neighbour, -1)
+
+        return P - O
 
     def player_throw_trap(self, grid: Grid, intended_position: tuple) -> tuple:
         '''
