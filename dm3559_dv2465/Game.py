@@ -257,7 +257,7 @@ def main():
     for i in range(5):
 
         playerAI = PlayerAI()  # change this to PlayerAI() to test your player!
-        computerAI = DevicaAI()  # change this to a more sophisticated player you've coded
+        computerAI = DanielAI()  # change this to a more sophisticated player you've coded
         displayer = Displayer()
         game = Game(playerAI=playerAI, computerAI=computerAI,
                     N=7, displayer=displayer)
